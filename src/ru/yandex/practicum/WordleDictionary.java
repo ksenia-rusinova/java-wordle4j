@@ -3,9 +3,6 @@ package ru.yandex.practicum;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
-import ru.yandex.practicum.WordleDictionaryLoader.*;
 
 /*
 этот класс содержит в себе список слов List<String>
@@ -14,7 +11,7 @@ import ru.yandex.practicum.WordleDictionaryLoader.*;
  */
 public class WordleDictionary {
 
-    private List<String> words = new ArrayList<>();
+    private List<String> dictionaryList = new ArrayList<>();
 
     WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
 
@@ -23,7 +20,7 @@ public class WordleDictionary {
 
         for(String word : internalList){
             if(word.length() == 5){
-                words.add(normalizeYoToEe(word).toLowerCase());
+                dictionaryList.add(normalizeYoToEe(word).toLowerCase());
             }
         }
     }
@@ -43,7 +40,7 @@ public class WordleDictionary {
         return sb.toString();
     }
 
-    public List<String> getWords() {
-        return words;
+    public List<String> getDictionaryList() {
+        return dictionaryList;
     }
 }

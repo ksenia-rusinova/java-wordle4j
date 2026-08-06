@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class Wordle {
     private static final Scanner scanner = new Scanner(System.in);
-    public static final WordleGame wordleGame = new WordleGame();
+    private static final WordleGame wordleGame = new WordleGame();
 
     public static void main(String[] args) throws IOException {
 
@@ -26,16 +26,33 @@ public class Wordle {
             switch (choice) {
                 case 1:
                     wordleGame.getRandomWordFromList();
-                    wordleGame.setSteps(6);
                     ///удалить в конце
                     System.out.println("Слово загадано - " + wordleGame.getAnswer());
 
-                    System.out.println("Правила игры:\nМы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\nУ Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)");
+                    System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
                     ///доп правила про подсказку дописать
-                    System.out.println("Слово загадано.\nПервая попытка.\nВведите слово.");
-                    wordleGame.addAttemptToList(scanner.nextLine());
+                    System.out.println("Начинаем играть!\nПервая попытка. Введите слово.");
+                    running = attempt();
 
-                    //записала первое слово первой попытки в список, далее надо сравнивать с загаданным
+                    System.out.println("Вторая попытка. Введите слово.");
+                    running = attempt();
+
+                    System.out.println("Третья попытка. Введите слово.");
+                    running = attempt();
+
+                    System.out.println("Четвертая попытка. Введите слово.");
+                    running = attempt();
+
+                    System.out.println("Пятая попытка. Введите слово.");
+                    running = attempt();
+
+                    System.out.println("Последняя попытка. Введите слово.");
+                    running = attempt();
+
+                    System.out.println("Вы не отгадали слово. Увы, но это проигрыш!");
+                    running = false;
+
+                    //короче надо переписать, тк нек использую steps
 
                     break;
                 case 0:
@@ -51,6 +68,34 @@ public class Wordle {
         System.out.println("Выберите действие:");
         System.out.println("1 — Начать игру Wordle");
         System.out.println("0 — Завершить");
+    }
+
+    private static boolean attempt() {
+        boolean running = true;
+
+        boolean firstAttempt = true;
+        while(firstAttempt) {
+            String wordAttempt = scanner.nextLine();
+            wordleGame.addAttemptToList(wordAttempt);
+
+            if(wordAttempt.length() == 5){
+                String result = wordleGame.checkUserWordAgainstAnswer(wordAttempt.toLowerCase());
+
+                if(result.equals("+++++")){
+                    System.out.println("Поздравляем! Вы отгадали слово!");
+                    running = false;
+                } else {
+                    System.out.println(result);
+                    wordleGame.setSteps(wordleGame.getSteps() - 1);
+                }
+
+                firstAttempt = false;
+            } else {
+                System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
+            }
+        }
+
+        return running;
     }
 
 }
