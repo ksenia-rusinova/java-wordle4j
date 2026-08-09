@@ -17,50 +17,34 @@ public class Wordle {
     private static final WordleGame wordleGame = new WordleGame();
 
     public static void main(String[] args) throws IOException {
+        showMenu();
 
-        boolean running = true;
-        while(running){
-            showMenu();
+        int choice = Integer.parseInt(scanner.nextLine());
+        switch (choice) {
+            case 1:
+                wordleGame.getRandomWordFromList();
+                ///удалить в конце
+                System.out.println("Слово загадано - " + wordleGame.getAnswer());
 
-            int choice = Integer.parseInt(scanner.nextLine());
-            switch (choice) {
-                case 1:
-                    wordleGame.getRandomWordFromList();
-                    ///удалить в конце
-                    System.out.println("Слово загадано - " + wordleGame.getAnswer());
+                System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
+                System.out.println("Если Вам нужна подсказка, нажмите Enter.");
 
-                    System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
-                    ///доп правила про подсказку дописать
-                    System.out.println("Начинаем играть!\nПервая попытка. Введите слово.");
-                    running = attempt();
+                final int MAX_ATTEMPTS = 6;
 
-                    System.out.println("Вторая попытка. Введите слово.");
-                    running = attempt();
+                for (int i = 1; i <= MAX_ATTEMPTS && wordleGame.getSteps() != 0; i++) {
+                    System.out.printf("%d-я попытка. Введите слово.%n", i);
+                    attempt();
 
-                    System.out.println("Третья попытка. Введите слово.");
-                    running = attempt();
+                    if (wordleGame.getSteps() == 0) {
+                        break;
+                    }
+                }
 
-                    System.out.println("Четвертая попытка. Введите слово.");
-                    running = attempt();
-
-                    System.out.println("Пятая попытка. Введите слово.");
-                    running = attempt();
-
-                    System.out.println("Последняя попытка. Введите слово.");
-                    running = attempt();
-
-                    System.out.println("Вы не отгадали слово. Увы, но это проигрыш!");
-                    running = false;
-
-                    //короче надо переписать, тк нек использую steps
-
-                    break;
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Неверный выбор.");
-            }
+            case 0:
+                wordleGame.setSteps(0);
+                break;
+            default:
+                System.out.println("Неверный выбор.");
         }
     }
 
@@ -70,32 +54,51 @@ public class Wordle {
         System.out.println("0 — Завершить");
     }
 
-    private static boolean attempt() {
-        boolean running = true;
+    private static void attempt() {
 
-        boolean firstAttempt = true;
-        while(firstAttempt) {
+        while(true) {
             String wordAttempt = scanner.nextLine();
-            wordleGame.addAttemptToList(wordAttempt);
 
-            if(wordAttempt.length() == 5){
+            ///ввод пользователя = 5 символам
+            ///пользователь нажал Enter
+            ///ввод пользователя != 5 символам
+            if(wordAttempt.length() == 5) {
+
+                wordleGame.addAttemptToList(wordAttempt);
                 String result = wordleGame.checkUserWordAgainstAnswer(wordAttempt.toLowerCase());
 
+                ///если результат = "+++++"
+                ///если результат != "+++++"
                 if(result.equals("+++++")){
                     System.out.println("Поздравляем! Вы отгадали слово!");
-                    running = false;
+                    wordleGame.setSteps(0);
                 } else {
                     System.out.println(result);
                     wordleGame.setSteps(wordleGame.getSteps() - 1);
                 }
 
-                firstAttempt = false;
+                break;
+
+            } else if(wordAttempt.isBlank()) {
+
+                System.out.println("Подсказки:");
+                wordleGame.searchForRightWords();
+
+                for(String rightWord : wordleGame.getListOfRightWords()){
+                    System.out.println(rightWord);
+                }
+
+                if(wordleGame.getListOfRightWords().size() == 1){
+                    System.out.println("Поздравляем! Вы отгадали слово!");
+                    wordleGame.setSteps(0);
+                    break;
+                }
+
             } else {
                 System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
             }
         }
 
-        return running;
     }
 
 }
