@@ -1,6 +1,6 @@
 package ru.yandex.practicum;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 
 /*
@@ -19,32 +19,40 @@ public class Wordle {
     public static void main(String[] args) throws IOException {
         showMenu();
 
-        int choice = Integer.parseInt(scanner.nextLine());
-        switch (choice) {
-            case 1:
-                wordleGame.getRandomWordFromList();
-                ///удалить в конце
-                System.out.println("Слово загадано - " + wordleGame.getAnswer());
+        ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
+        try {
+            int choice = Integer.parseInt(scanner.nextLine());
+            switch (choice) {
+                case 1:
 
-                System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
-                System.out.println("Если Вам нужна подсказка, нажмите Enter.");
+                    wordleGame.getRandomWordFromList();
+                    ///удалить в конце
+                    System.out.println("Загаданное слово - " + wordleGame.getAnswer());
 
-                final int MAX_ATTEMPTS = 6;
+                    System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
+                    System.out.println("Если Вам нужна подсказка, нажмите Enter.");
 
-                for (int i = 1; i <= MAX_ATTEMPTS && wordleGame.getSteps() != 0; i++) {
-                    System.out.printf("%d-я попытка. Введите слово.%n", i);
-                    attempt();
+                    final int MAX_ATTEMPTS = 6;
 
-                    if (wordleGame.getSteps() == 0) {
-                        break;
+                    for (int i = 1; i <= MAX_ATTEMPTS && wordleGame.getSteps() != 0; i++) {
+                        System.out.printf("%d-я попытка. Введите слово.%n", i);
+                        attempt();
+
+                        if (wordleGame.getSteps() == 0) {
+                            System.out.println("Загаданное слово - " + wordleGame.getAnswer());
+                            break;
+                        }
                     }
-                }
 
-            case 0:
-                wordleGame.setSteps(0);
-                break;
-            default:
-                System.out.println("Неверный выбор.");
+                case 0:
+                    wordleGame.setSteps(0);
+                    break;
+                default:
+                    System.out.println("Неверный выбор.");
+            }
+        } catch (NumberFormatException exception) {
+            writeLog("program_log.txt", "Произошло исключение: NumberFormatException\n" + exception.getMessage());
+            System.out.println("Ожидался ввод цифры.");
         }
     }
 
@@ -98,7 +106,12 @@ public class Wordle {
                 System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
             }
         }
+    }
 
+    public static void writeLog(String filename, String log) throws IOException {
+        try (Writer fileWriter = new FileWriter(filename, true)) {
+            fileWriter.write(log + "\n");
+        }
     }
 
 }

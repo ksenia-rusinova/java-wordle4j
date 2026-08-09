@@ -21,9 +21,9 @@ public class WordleGame {
 
     private String answer = "";
     private int steps = 6;
+    private int index = 1;
     private List<String> listOfAttempts = new ArrayList<>();
     private List<String> listOfRightWords = new ArrayList<>();
-    private int index = 1;
 
     public void getRandomWordFromList() throws IOException {
         wordleDictionary.filterListByLength();
