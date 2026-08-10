@@ -11,6 +11,7 @@ public class WordleDictionary {
     WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
 
     public void filterListByLength() throws IOException {
+
         List<String> internalList = wordleDictionaryLoader.readWordsFromFile("words_ru.txt");
 
         for(String word : internalList){

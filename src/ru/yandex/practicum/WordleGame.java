@@ -1,5 +1,7 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.wordle.exceptions.WordNotFoundInDictionary;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,13 +19,13 @@ import java.util.concurrent.ThreadLocalRandom;
 не забудьте про специальные типы исключений для игровых и неигровых ошибок
  */
 public class WordleGame {
-    private static final WordleDictionary wordleDictionary = new WordleDictionary();
-
     private String answer = "";
     private int steps = 6;
     private int index = 1;
     private List<String> listOfAttempts = new ArrayList<>();
     private List<String> listOfRightWords = new ArrayList<>();
+
+    private WordleDictionary wordleDictionary = new WordleDictionary();
 
     public void getRandomWordFromList() throws IOException {
         wordleDictionary.filterListByLength();
@@ -31,13 +33,15 @@ public class WordleGame {
         answer = wordleDictionary.getDictionaryList().get(indexOfChosenWord);
     }
 
-    public void addAttemptToList(String wordFromUser){
-        listOfAttempts.add(wordFromUser);
-    }
-
     ///метод для проверки введенного слова
     public String checkUserWordAgainstAnswer(String userWord) {
         StringBuilder builder = new StringBuilder();
+
+        if (!wordleDictionary.getDictionaryList().contains(userWord)) {
+            throw new WordNotFoundInDictionary(userWord);
+        }
+
+        listOfAttempts.add(userWord);
 
         for (int i = 0; i < userWord.length(); i++) {
             if (userWord.charAt(i) == answer.charAt(i)) {

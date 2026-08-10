@@ -1,17 +1,10 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.wordle.exceptions.WordNotFoundInDictionary;
+
 import java.io.*;
 import java.util.Scanner;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
 public class Wordle {
     private static final Scanner scanner = new Scanner(System.in);
     private static final WordleGame wordleGame = new WordleGame();
@@ -19,40 +12,52 @@ public class Wordle {
     public static void main(String[] args) throws IOException {
         showMenu();
 
-        ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
-        try {
-            int choice = Integer.parseInt(scanner.nextLine());
-            switch (choice) {
-                case 1:
+        try(LogPrinter logPrinter = new LogPrinter("program_log.txt")) {
 
-                    wordleGame.getRandomWordFromList();
-                    ///удалить в конце
-                    System.out.println("Загаданное слово - " + wordleGame.getAnswer());
+            ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
+            try {
+                int choice = Integer.parseInt(scanner.nextLine());
+                switch (choice) {
+                    case 1:
 
-                    System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
-                    System.out.println("Если Вам нужна подсказка, нажмите Enter.");
+                        ///обработка исключения FileNotFoundException (если файл НЕ существует)
+                        wordleGame.getRandomWordFromList();
+                        ///удалить в конце
+                        System.out.println("Загаданное слово - " + wordleGame.getAnswer());
 
-                    final int MAX_ATTEMPTS = 6;
+                        System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
+                        System.out.println("Если Вам нужна подсказка, нажмите Enter.");
 
-                    for (int i = 1; i <= MAX_ATTEMPTS && wordleGame.getSteps() != 0; i++) {
-                        System.out.printf("%d-я попытка. Введите слово.%n", i);
-                        attempt();
+                        final int MAX_ATTEMPTS = 6;
 
-                        if (wordleGame.getSteps() == 0) {
-                            System.out.println("Загаданное слово - " + wordleGame.getAnswer());
-                            break;
+                        for (int i = 1; i <= MAX_ATTEMPTS && wordleGame.getSteps() != 0; i++) {
+                            System.out.printf("%d-я попытка. Введите слово.%n", i);
+
+                            ///обработка собственного исключения WordNotFoundInDictionary
+                            attempt();
+
+                            if (wordleGame.getSteps() == 0) {
+                                System.out.println("Загаданное слово - " + wordleGame.getAnswer());
+                                break;
+                            }
                         }
-                    }
 
-                case 0:
-                    wordleGame.setSteps(0);
-                    break;
-                default:
-                    System.out.println("Неверный выбор.");
+                    case 0:
+                        wordleGame.setSteps(0);
+                        break;
+                    default:
+                        System.out.println("Неверный выбор.");
+                }
+            } catch (NumberFormatException exception) {
+                logPrinter.println("Произошло исключение: NumberFormatException\n" + exception.getMessage());
+                System.out.println("Ожидался ввод цифры.");
+            } catch (FileNotFoundException exception) {
+                logPrinter.println("Произошло исключение: FileNotFoundException\n" + exception.getMessage());
+                System.out.println("Файл words_ru.txt НЕ существует.");
+            } catch (WordNotFoundInDictionary exception) {
+                logPrinter.println("Произошло исключение: WordNotFoundInDictionary\n" + exception.getMessage());
+                System.out.println("Введенное слово НЕ из словаря words_ru.txt");
             }
-        } catch (NumberFormatException exception) {
-            writeLog("program_log.txt", "Произошло исключение: NumberFormatException\n" + exception.getMessage());
-            System.out.println("Ожидался ввод цифры.");
         }
     }
 
@@ -72,7 +77,6 @@ public class Wordle {
             ///ввод пользователя != 5 символам
             if(wordAttempt.length() == 5) {
 
-                wordleGame.addAttemptToList(wordAttempt);
                 String result = wordleGame.checkUserWordAgainstAnswer(wordAttempt.toLowerCase());
 
                 ///если результат = "+++++"
@@ -107,11 +111,4 @@ public class Wordle {
             }
         }
     }
-
-    public static void writeLog(String filename, String log) throws IOException {
-        try (Writer fileWriter = new FileWriter(filename, true)) {
-            fileWriter.write(log + "\n");
-        }
-    }
-
 }
