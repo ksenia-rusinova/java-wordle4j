@@ -8,6 +8,8 @@ import java.util.Scanner;
 public class Wordle {
     private static final Scanner scanner = new Scanner(System.in);
     private static final WordleGame wordleGame = new WordleGame();
+    private static final WordleDictionary wordleDictionary = new WordleDictionary();
+    private static final WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
 
     public static void main(String[] args) throws IOException {
         showMenu();
@@ -21,7 +23,7 @@ public class Wordle {
                     case 1:
 
                         ///обработка исключения FileNotFoundException (если файл НЕ существует)
-                        wordleGame.getRandomWordFromList();
+                        wordleGame.getRandomWordFromList(wordleDictionaryLoader, wordleDictionary);
                         ///удалить в конце
                         System.out.println("Загаданное слово - " + wordleGame.getAnswer());
 
@@ -77,7 +79,7 @@ public class Wordle {
             ///ввод пользователя != 5 символам
             if(wordAttempt.length() == 5) {
 
-                String result = wordleGame.checkUserWordAgainstAnswer(wordAttempt.toLowerCase());
+                String result = wordleGame.checkUserWordAgainstAnswer(wordleDictionary, wordAttempt.toLowerCase());
 
                 ///если результат = "+++++"
                 ///если результат != "+++++"
@@ -94,7 +96,7 @@ public class Wordle {
             } else if(wordAttempt.isBlank()) {
 
                 System.out.println("Подсказки:");
-                wordleGame.searchForRightWords();
+                wordleGame.searchForRightWords(wordleDictionary);
 
                 for(String rightWord : wordleGame.getListOfRightWords()){
                     System.out.println(rightWord);

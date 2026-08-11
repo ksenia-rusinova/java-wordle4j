@@ -8,11 +8,8 @@ public class WordleDictionary {
 
     private List<String> dictionaryList = new ArrayList<>();
 
-    WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
-
-    public void filterListByLength() throws IOException {
-
-        List<String> internalList = wordleDictionaryLoader.readWordsFromFile("words_ru.txt");
+    public void filterListByLength(WordleDictionaryLoader wordleDictionaryLoader, String fileName) throws IOException {
+        List<String> internalList = wordleDictionaryLoader.readWordsFromFile(fileName);
 
         for(String word : internalList){
             if(word.length() == 5){
@@ -21,7 +18,7 @@ public class WordleDictionary {
         }
     }
 
-    private String normalizeYoToEe(String word) {
+    public String normalizeYoToEe(String word) {
         if (word == null) return null;
 
         StringBuilder sb = new StringBuilder(word);

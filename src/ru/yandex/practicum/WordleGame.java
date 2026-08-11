@@ -6,35 +6,22 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-/*
-в этом классе хранится словарь и состояние игры
-    текущий шаг
-    всё что пользователь вводил
-    правильный ответ
-
-в этом классе нужны методы, которые
-    проанализируют совпадение слова с ответом
-    предложат слово-подсказку с учётом всего, что вводил пользователь ранее
-
-не забудьте про специальные типы исключений для игровых и неигровых ошибок
- */
 public class WordleGame {
     private String answer = "";
     private int steps = 6;
     private int index = 1;
+
     private List<String> listOfAttempts = new ArrayList<>();
     private List<String> listOfRightWords = new ArrayList<>();
 
-    private WordleDictionary wordleDictionary = new WordleDictionary();
-
-    public void getRandomWordFromList() throws IOException {
-        wordleDictionary.filterListByLength();
+    public void getRandomWordFromList(WordleDictionaryLoader wordleDictionaryLoader, WordleDictionary wordleDictionary) throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "words_ru.txt");
         int indexOfChosenWord = ThreadLocalRandom.current().nextInt(wordleDictionary.getDictionaryList().size());
         answer = wordleDictionary.getDictionaryList().get(indexOfChosenWord);
     }
 
     ///метод для проверки введенного слова
-    public String checkUserWordAgainstAnswer(String userWord) {
+    public String checkUserWordAgainstAnswer(WordleDictionary wordleDictionary, String userWord) {
         StringBuilder builder = new StringBuilder();
 
         if (!wordleDictionary.getDictionaryList().contains(userWord)) {
@@ -64,7 +51,7 @@ public class WordleGame {
     }
 
     //поиск подсказок
-    public void searchForRightWords() {
+    public void searchForRightWords(WordleDictionary wordleDictionary) {
 
         ///список listOfAttempts (попытки пользователя) НЕ пустой, пользователь уже вводил слова
         ///список listOfAttempts (попытки пользователя) пустой, пользователь НЕ вводил слова
@@ -165,6 +152,10 @@ public class WordleGame {
         return answer;
     }
 
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
     public int getSteps() {
         return steps;
     }
@@ -175,5 +166,9 @@ public class WordleGame {
 
     public List<String> getListOfRightWords() {
         return listOfRightWords;
+    }
+
+    public List<String> getListOfAttempts() {
+        return listOfAttempts;
     }
 }
