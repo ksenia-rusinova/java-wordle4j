@@ -20,7 +20,7 @@ public class WordleGame {
         answer = wordleDictionary.getDictionaryList().get(indexOfChosenWord);
     }
 
-    ///метод для проверки введенного слова
+    /// метод для проверки введенного слова
     public String checkUserWordAgainstAnswer(WordleDictionary wordleDictionary, String userWord) {
         StringBuilder builder = new StringBuilder();
 
@@ -33,14 +33,14 @@ public class WordleGame {
         for (int i = 0; i < userWord.length(); i++) {
             if (userWord.charAt(i) == answer.charAt(i)) {
                 builder.append("+");
-            } else if(userWord.charAt(i) != answer.charAt(i)) {
+            } else if (userWord.charAt(i) != answer.charAt(i)) {
                 boolean flag = false;
-                for(int k = 0; k < answer.length(); k++){
-                    if(userWord.charAt(i) == answer.charAt(k)){
+                for (int k = 0; k < answer.length(); k++) {
+                    if (userWord.charAt(i) == answer.charAt(k)) {
                         flag = true;
                     }
                 }
-                if(flag) {
+                if (flag) {
                     builder.append("^");
                 } else {
                     builder.append("-");
@@ -55,21 +55,21 @@ public class WordleGame {
 
         ///список listOfAttempts (попытки пользователя) НЕ пустой, пользователь уже вводил слова
         ///список listOfAttempts (попытки пользователя) пустой, пользователь НЕ вводил слова
-        if(!listOfAttempts.isEmpty()){
+        if (!listOfAttempts.isEmpty()) {
 
-            for(String attempt : listOfAttempts) {
+            for (String attempt : listOfAttempts) {
 
                 //собираю список matches (совпадения с answer)
                 List<Integer> matches = new ArrayList<>();
-                for(int i = 0; i < attempt.length(); i++){
-                    if(attempt.charAt(i) == answer.charAt(i)){
+                for (int i = 0; i < attempt.length(); i++) {
+                    if (attempt.charAt(i) == answer.charAt(i)) {
                         matches.add(i);
                     }
                 }
 
                 ///список listOfRightWords (подсказки) НЕ пустой, пользователь уже нажимал Enter
                 ///список listOfRightWords (подсказки) пустой, пользователь еще НЕ нажимал Enter ни разу
-                if(!listOfRightWords.isEmpty()) {
+                if (!listOfRightWords.isEmpty()) {
 
                     Collections.sort(matches);
                     Set<String> resultSet = new LinkedHashSet<>();
@@ -93,10 +93,10 @@ public class WordleGame {
 
                     ///если у пользователя в слове из списка listOfAttempts нет ни одного совпадения с answer
                     ///если у пользователя в слове из списка listOfAttempts есть совпадения с answer
-                    if(matches.isEmpty()) {
+                    if (matches.isEmpty()) {
 
                         for (String word : wordleDictionary.getDictionaryList()) {
-                            if(answer.charAt(0) == word.charAt(0)) {
+                            if (answer.charAt(0) == word.charAt(0)) {
                                 listOfRightWords.add(word);
                             }
                         }
@@ -126,11 +126,11 @@ public class WordleGame {
         } else {
             ///список listOfRightWords (подсказки) НЕ пустой, пользователь уже нажимал Enter (запрошивал подсказки)
             ///список listOfRightWords (подсказки) пустой, пользователь НЕ нажимал Enter (НЕ запрошивал подсказки)
-            if(!listOfRightWords.isEmpty()){
+            if (!listOfRightWords.isEmpty()) {
 
                 List<String> next = new ArrayList<>();
                 for (String word : listOfRightWords) {
-                    if(answer.charAt(index) == word.charAt(index)) {
+                    if (answer.charAt(index) == word.charAt(index)) {
                         next.add(word);
                     }
                 }
@@ -140,7 +140,7 @@ public class WordleGame {
 
             } else {
                 for (String word : wordleDictionary.getDictionaryList()) {
-                    if(answer.charAt(0) == word.charAt(0)) {
+                    if (answer.charAt(0) == word.charAt(0)) {
                         listOfRightWords.add(word);
                     }
                 }

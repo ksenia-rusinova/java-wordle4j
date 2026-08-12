@@ -4,11 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import ru.yandex.practicum.wordle.exceptions.WordNotFoundInDictionary;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WordleGameTest {
     private static WordleGame wordleGame;
@@ -44,7 +44,64 @@ public class WordleGameTest {
     }
 
     @Test
-    void testSearchForRightWords() {
-//надо писать
+    void testCheckWordNotFoundInDictionaryException() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "words_ru.txt");
+
+        Throwable thrown = assertThrows(WordNotFoundInDictionary.class, () ->
+                wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "йцуке".toLowerCase())
+        );
+        assertEquals("Слово: йцуке НЕ найдено в словаре.", thrown.getMessage());
     }
+
+    //список listOfAttempts (попытки пользователя) пустой
+    //список listOfRightWords (подсказки) пустой
+    @Test
+    void testListOfAttemptsAndListOfRightWordsEmpty() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
+
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(5, wordleGame.getListOfRightWords().size());
+        assertEquals("жарка", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жарок", wordleGame.getListOfRightWords().get(1));
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(2));
+        assertEquals("жвало", wordleGame.getListOfRightWords().get(3));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(4));
+    }
+
+    //список listOfAttempts (попытки пользователя) пустой
+    //список listOfRightWords (подсказки) НЕ пустой
+    @Test
+    void testListOfAttemptsEmptyListOfRightWordsNotEmpty() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
+        wordleGame.searchForRightWords(wordleDictionary);
+
+        //повторный запуск searchForRightWords - поиск по 2-м первым буквам
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(4, wordleGame.getListOfRightWords().size());
+        assertEquals("жарка", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жарок", wordleGame.getListOfRightWords().get(1));
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(2));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(3));
+
+        //повторный запуск searchForRightWords - поиск по 3-м первым буквам
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(2, wordleGame.getListOfRightWords().size());
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(1));
+
+        //повторный запуск searchForRightWords - поиск по 4-м первым буквам
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(1, wordleGame.getListOfRightWords().size());
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(0));
+    }
+
+    //список listOfAttempts (попытки пользователя) НЕ пустой
+    //список listOfRightWords (подсказки) пустой
+    @Test
+    void testListOfAttemptsNotEmptyListOfRightWordsEmpty() throws IOException {
+
+    }
+
 }

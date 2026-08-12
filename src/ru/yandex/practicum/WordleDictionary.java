@@ -11,8 +11,8 @@ public class WordleDictionary {
     public void filterListByLength(WordleDictionaryLoader wordleDictionaryLoader, String fileName) throws IOException {
         List<String> internalList = wordleDictionaryLoader.readWordsFromFile(fileName);
 
-        for(String word : internalList){
-            if(word.length() == 5){
+        for (String word : internalList) {
+            if (word.length() == 5) {
                 dictionaryList.add(normalizeYoToEe(word).toLowerCase());
             }
         }

@@ -14,7 +14,7 @@ public class Wordle {
     public static void main(String[] args) throws IOException {
         showMenu();
 
-        try(LogPrinter logPrinter = new LogPrinter("program_log.txt")) {
+        try (LogPrinter logPrinter = new LogPrinter("program_log.txt")) {
 
             ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
             try {
@@ -71,19 +71,19 @@ public class Wordle {
 
     private static void attempt() {
 
-        while(true) {
+        while (true) {
             String wordAttempt = scanner.nextLine();
 
             ///ввод пользователя = 5 символам
             ///пользователь нажал Enter
             ///ввод пользователя != 5 символам
-            if(wordAttempt.length() == 5) {
+            if (wordAttempt.length() == 5) {
 
                 String result = wordleGame.checkUserWordAgainstAnswer(wordleDictionary, wordAttempt.toLowerCase());
 
                 ///если результат = "+++++"
                 ///если результат != "+++++"
-                if(result.equals("+++++")){
+                if (result.equals("+++++")) {
                     System.out.println("Поздравляем! Вы отгадали слово!");
                     wordleGame.setSteps(0);
                 } else {
@@ -93,16 +93,16 @@ public class Wordle {
 
                 break;
 
-            } else if(wordAttempt.isBlank()) {
+            } else if (wordAttempt.isBlank()) {
 
                 System.out.println("Подсказки:");
                 wordleGame.searchForRightWords(wordleDictionary);
 
-                for(String rightWord : wordleGame.getListOfRightWords()){
+                for (String rightWord : wordleGame.getListOfRightWords()) {
                     System.out.println(rightWord);
                 }
 
-                if(wordleGame.getListOfRightWords().size() == 1){
+                if (wordleGame.getListOfRightWords().size() == 1) {
                     System.out.println("Поздравляем! Вы отгадали слово!");
                     wordleGame.setSteps(0);
                     break;
