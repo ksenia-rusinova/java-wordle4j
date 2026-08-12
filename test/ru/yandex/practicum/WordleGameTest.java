@@ -97,11 +97,82 @@ public class WordleGameTest {
         assertEquals("жатва", wordleGame.getListOfRightWords().get(0));
     }
 
-    //список listOfAttempts (попытки пользователя) НЕ пустой
+    //список listOfAttempts (попытки пользователя) НЕ пустой (size = 1)
     //список listOfRightWords (подсказки) пустой
+    //у пользователя в слове из списка listOfAttempts нет ни одного совпадения с answer
+    @Test
+    void testListOfAttemptsNotEmptyListOfRightWordsEmptyUserWordNotMatchAnswer() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
+
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "севец".toLowerCase());
+
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(5, wordleGame.getListOfRightWords().size());
+        assertEquals("жарка", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жарок", wordleGame.getListOfRightWords().get(1));
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(2));
+        assertEquals("жвало", wordleGame.getListOfRightWords().get(3));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(4));
+    }
+
+    //список listOfAttempts (попытки пользователя) НЕ пустой (size = 1)
+    //список listOfRightWords (подсказки) пустой
+    //у пользователя в слове из списка listOfAttempts есть совпадения с answer
+    @Test
+    void testListOfAttemptsNotEmptyListOfRightWordsEmptyUserWordMatchAnswer() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
+
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "жарка".toLowerCase());
+
+        wordleGame.searchForRightWords(wordleDictionary);
+
+        assertEquals(3, wordleGame.getListOfRightWords().size());
+        assertEquals("жарка", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(1));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(2));
+    }
+
+    //список listOfAttempts (попытки пользователя) НЕ пустой (size > 1)
+    //список listOfRightWords (подсказки) пустой
+    //у пользователя в слове из списка listOfAttempts есть совпадения (ни в каждой попытке)
     @Test
     void testListOfAttemptsNotEmptyListOfRightWordsEmpty() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
 
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "севец".toLowerCase());
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "жарка".toLowerCase());
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "жатка".toLowerCase());
+
+        wordleGame.searchForRightWords(wordleDictionary);
+        assertEquals(2, wordleGame.getListOfRightWords().size());
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(1));
+    }
+
+    //список listOfAttempts (попытки пользователя) НЕ пустой (size > 1)
+    //список listOfRightWords (подсказки) НЕ пустой
+    @Test
+    void testListOfAttemptsAndListOfRightWordsNotEmpty() throws IOException {
+        wordleDictionary.filterListByLength(wordleDictionaryLoader, "search_for_right_words_test.txt");
+        wordleGame.setAnswer("жатва");
+
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "севец".toLowerCase());
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "жарка".toLowerCase());
+
+        wordleGame.searchForRightWords(wordleDictionary);
+
+        //пользователь сделал еще попытку угадать слово
+        wordleGame.checkUserWordAgainstAnswer(wordleDictionary, "жатка".toLowerCase());
+
+        //и запросил подсказку
+        wordleGame.searchForRightWords(wordleDictionary);
+
+        assertEquals(2, wordleGame.getListOfRightWords().size());
+        assertEquals("жатва", wordleGame.getListOfRightWords().get(0));
+        assertEquals("жатка", wordleGame.getListOfRightWords().get(1));
     }
 
 }
