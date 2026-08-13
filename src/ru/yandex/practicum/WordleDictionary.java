@@ -6,7 +6,7 @@ import java.util.List;
 
 public class WordleDictionary {
 
-    private List<String> dictionaryList = new ArrayList<>();
+    private final List<String> dictionaryList = new ArrayList<>();
 
     public void filterListByLength(WordleDictionaryLoader wordleDictionaryLoader, String fileName) throws IOException {
         List<String> internalList = wordleDictionaryLoader.readWordsFromFile(fileName);

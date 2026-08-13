@@ -1,9 +1,11 @@
 package ru.yandex.practicum;
 
+import ru.yandex.practicum.wordle.exceptions.DigitsException;
+import ru.yandex.practicum.wordle.exceptions.EnglishLettersException;
 import ru.yandex.practicum.wordle.exceptions.WordNotFoundInDictionary;
 
 import java.io.*;
-import java.util.Scanner;
+import java.util.*;
 
 public class Wordle {
     private static final Scanner scanner = new Scanner(System.in);
@@ -43,7 +45,7 @@ public class Wordle {
                                 break;
                             }
                         }
-
+                        break;
                     case 0:
                         wordleGame.setSteps(0);
                         break;
@@ -74,12 +76,22 @@ public class Wordle {
         while (true) {
             String wordAttempt = scanner.nextLine();
 
+            if(!wordAttempt.isBlank()) {
+                wordAttempt = wordleDictionary.normalizeYoToEe(wordAttempt).toLowerCase().trim();
+            }
+            if (wordAttempt.matches("^[A-Za-z]+$")) {
+                throw new EnglishLettersException(wordAttempt);
+            }//нужно обработать
+            if (wordAttempt.matches("^[0-9]+$")) {
+                throw new DigitsException(wordAttempt);
+            }//нужно обработать
+
             ///ввод пользователя = 5 символам
             ///пользователь нажал Enter
             ///ввод пользователя != 5 символам
             if (wordAttempt.length() == 5) {
 
-                String result = wordleGame.checkUserWordAgainstAnswer(wordleDictionary, wordAttempt.toLowerCase());
+                String result = wordleGame.checkUserWordAgainstAnswer(wordleDictionary, wordAttempt);
 
                 ///если результат = "+++++"
                 ///если результат != "+++++"
@@ -94,20 +106,13 @@ public class Wordle {
                 break;
 
             } else if (wordAttempt.isBlank()) {
-
-                System.out.println("Подсказки:");
                 wordleGame.searchForRightWords(wordleDictionary);
-
-                for (String rightWord : wordleGame.getListOfRightWords()) {
-                    System.out.println(rightWord);
+                for (String w : wordleDictionary.getDictionaryList()) {
+                    if (wordleGame.getCandidateWordCounts().containsKey(w)) {
+                        System.out.println("Подсказка: "+ w);
+                        break;
+                    }
                 }
-
-                if (wordleGame.getListOfRightWords().size() == 1) {
-                    System.out.println("Поздравляем! Вы отгадали слово!");
-                    wordleGame.setSteps(0);
-                    break;
-                }
-
             } else {
                 System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
             }

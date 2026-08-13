@@ -9,10 +9,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WordleGame {
     private String answer = "";
     private int steps = 6;
-    private int index = 1;
-
     private List<String> listOfAttempts = new ArrayList<>();
-    private List<String> listOfRightWords = new ArrayList<>();
+
+    private final LinkedHashMap<String, Integer> candidateWordCounts = new LinkedHashMap<>();
 
     public void getRandomWordFromList(WordleDictionaryLoader wordleDictionaryLoader, WordleDictionary wordleDictionary) throws IOException {
         wordleDictionary.filterListByLength(wordleDictionaryLoader, "words_ru.txt");
@@ -38,114 +37,13 @@ public class WordleGame {
                 for (int k = 0; k < answer.length(); k++) {
                     if (userWord.charAt(i) == answer.charAt(k)) {
                         flag = true;
+                        break;
                     }
                 }
-                if (flag) {
-                    builder.append("^");
-                } else {
-                    builder.append("-");
-                }
+                builder.append(flag ? "^" : "-");
             }
         }
         return builder.toString();
-    }
-
-    //поиск подсказок
-    public void searchForRightWords(WordleDictionary wordleDictionary) {
-
-        ///список listOfAttempts (попытки пользователя) НЕ пустой, пользователь уже вводил слова
-        ///список listOfAttempts (попытки пользователя) пустой, пользователь НЕ вводил слова
-        if (!listOfAttempts.isEmpty()) {
-
-            for (String attempt : listOfAttempts) {
-
-                //собираю список matches (совпадения с answer)
-                List<Integer> matches = new ArrayList<>();
-                for (int i = 0; i < attempt.length(); i++) {
-                    if (attempt.charAt(i) == answer.charAt(i)) {
-                        matches.add(i);
-                    }
-                }
-
-                ///список listOfRightWords (подсказки) НЕ пустой, пользователь уже нажимал Enter
-                ///список listOfRightWords (подсказки) пустой, пользователь еще НЕ нажимал Enter ни разу
-                if (!listOfRightWords.isEmpty()) {
-
-                    Collections.sort(matches);
-                    Set<String> resultSet = new LinkedHashSet<>();
-
-                    for (String word : listOfRightWords) {
-                        boolean allMatch = true;
-                        for (int idx : matches) {
-                            if (answer.charAt(idx) != word.charAt(idx)) {
-                                allMatch = false;
-                                break;
-                            }
-                        }
-                        if (allMatch) {
-                            resultSet.add(word);
-                        }
-                    }
-                    listOfRightWords.clear();
-                    listOfRightWords.addAll(resultSet);
-
-                } else {
-
-                    ///если у пользователя в слове из списка listOfAttempts нет ни одного совпадения с answer
-                    ///если у пользователя в слове из списка listOfAttempts есть совпадения с answer
-                    if (matches.isEmpty()) {
-
-                        for (String word : wordleDictionary.getDictionaryList()) {
-                            if (answer.charAt(0) == word.charAt(0)) {
-                                listOfRightWords.add(word);
-                            }
-                        }
-                    } else {
-                        Collections.sort(matches);
-                        Set<String> resultSet = new LinkedHashSet<>();
-
-                        for (String word : wordleDictionary.getDictionaryList()) {
-                            boolean allMatch = true;
-                            for (int idx : matches) {
-                                if (answer.charAt(idx) != word.charAt(idx)) {
-                                    allMatch = false;
-                                    break;
-                                }
-                            }
-                            if (allMatch) {
-                                resultSet.add(word);
-                            }
-                        }
-                        if (listOfRightWords != null) {
-                            listOfRightWords.clear();
-                            listOfRightWords.addAll(resultSet);
-                        }
-                    }
-                }
-            }
-        } else {
-            ///список listOfRightWords (подсказки) НЕ пустой, пользователь уже нажимал Enter (запрошивал подсказки)
-            ///список listOfRightWords (подсказки) пустой, пользователь НЕ нажимал Enter (НЕ запрошивал подсказки)
-            if (!listOfRightWords.isEmpty()) {
-
-                List<String> next = new ArrayList<>();
-                for (String word : listOfRightWords) {
-                    if (answer.charAt(index) == word.charAt(index)) {
-                        next.add(word);
-                    }
-                }
-                listOfRightWords.clear();
-                listOfRightWords.addAll(next);
-                index++;
-
-            } else {
-                for (String word : wordleDictionary.getDictionaryList()) {
-                    if (answer.charAt(0) == word.charAt(0)) {
-                        listOfRightWords.add(word);
-                    }
-                }
-            }
-        }
     }
 
     public String getAnswer() {
@@ -164,11 +62,63 @@ public class WordleGame {
         this.steps = steps;
     }
 
-    public List<String> getListOfRightWords() {
-        return listOfRightWords;
-    }
-
     public List<String> getListOfAttempts() {
         return listOfAttempts;
+    }
+
+    public void searchForRightWords(WordleDictionary wordleDictionary) {
+        Map<Integer, Character> exactPositions = new HashMap<>();
+        Set<Character> presentLetters = new HashSet<>();
+
+        candidateWordCounts.clear();
+
+        if (listOfAttempts.isEmpty()) {
+            String w = wordleDictionary.getDictionaryList().get(0);
+            candidateWordCounts.put(w, 1);
+            return;
+        }
+
+        for (String attempt : listOfAttempts) {
+
+            for (int i = 0; i < answer.length(); i++) {
+                char a = answer.charAt(i);
+                char c = attempt.charAt(i);
+                if (c == a) {
+                    exactPositions.put(i, c);
+                } else {
+                    if (answer.indexOf(c) != -1) {
+                        presentLetters.add(c);
+                    }
+                }
+            }
+        }
+
+        for (String word : wordleDictionary.getDictionaryList()) {
+            boolean ok = true;
+
+            for (Map.Entry<Integer, Character> e : exactPositions.entrySet()) {
+                int pos = e.getKey();
+                char required = e.getValue();
+                if (word.charAt(pos) != required) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok) continue;
+
+            for (char ch : presentLetters) {
+                if (word.indexOf(ch) == -1) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok) {
+                candidateWordCounts.put(word, candidateWordCounts.getOrDefault(word, 0) + 1);
+            }
+        }
+    }
+
+    public LinkedHashMap<String, Integer> getCandidateWordCounts() {
+        return candidateWordCounts;
     }
 }
