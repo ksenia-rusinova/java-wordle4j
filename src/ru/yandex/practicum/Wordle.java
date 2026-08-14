@@ -2,6 +2,7 @@ package ru.yandex.practicum;
 
 import ru.yandex.practicum.wordle.exceptions.DigitsException;
 import ru.yandex.practicum.wordle.exceptions.EnglishLettersException;
+import ru.yandex.practicum.wordle.exceptions.IncorrectNumberOfCharacters;
 import ru.yandex.practicum.wordle.exceptions.WordNotFoundInDictionary;
 
 import java.io.*;
@@ -17,12 +18,10 @@ public class Wordle {
         showMenu();
 
         try (LogPrinter logPrinter = new LogPrinter("program_log.txt")) {
-            ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
                 switch (choice) {
                     case 1:
-                        ///обработка исключения FileNotFoundException (если файл НЕ существует)
                         wordleGame.getRandomWordFromList(wordleDictionaryLoader, wordleDictionary);
                         System.out.println("Правила игры:\n1. Мы загадали слово из русского словаря (если в слове есть буква 'ё', она заменена на 'е') из 5 букв.\n2. У Вас есть 6 попыток чтобы его отгадать.\n(введенное Вами слово должно быть в нижнем регистре)\n3. Результатом сравнения будет строка из пяти символов, где каждый из них соответствует букве очередного ввода пользователя:\n'-' им отмечается буква, которой НЕТ в загаданном слове;\n'+' этим символом отмечается буква, которая ЕСТЬ в загаданном слове и находится на правильной позиции;\n'^' так отмечается буква, которая ЕСТЬ в загаданном слове, но находится в другом месте.\nПример: +^-^-");
                         System.out.println("Если Вам нужна подсказка, нажмите Enter.");
@@ -39,7 +38,6 @@ public class Wordle {
                         }
                         break;
                     case 0:
-                        wordleGame.setSteps(0);
                         break;
                     default:
                         System.out.println("Неверный выбор.");
@@ -63,7 +61,6 @@ public class Wordle {
     private static void attempt() throws IOException {
         try (LogPrinter logPrinter = new LogPrinter("game_log.txt")) {
             while (true) {
-                ///обработка собственых исключении WordNotFoundInDictionary, EnglishLettersException, DigitsException
                 try {
                     String wordAttempt = scanner.nextLine();
 
@@ -77,14 +74,9 @@ public class Wordle {
                         throw new DigitsException(wordAttempt);
                     }
 
-                    ///ввод пользователя = 5 символам
-                    ///пользователь нажал Enter
-                    ///ввод пользователя != 5 символам
                     if (wordAttempt.length() == 5) {
                         String result = wordleGame.checkUserWordAgainstAnswer(wordleDictionary, wordAttempt);
 
-                        ///если результат = "+++++"
-                        ///если результат != "+++++"
                         if (result.equals("+++++")) {
                             System.out.println("Поздравляем! Вы отгадали слово!");
                             wordleGame.setSteps(0);
@@ -102,8 +94,10 @@ public class Wordle {
                                 break;
                             }
                         }
+                        wordleGame.setSteps(wordleGame.getSteps() - 1);
+                        break;
                     } else {
-                        System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
+                        throw new IncorrectNumberOfCharacters(wordAttempt);
                     }
                 } catch (WordNotFoundInDictionary exception) {
                     logPrinter.println("Произошло исключение: WordNotFoundInDictionary\n" + exception.getMessage());
@@ -113,6 +107,9 @@ public class Wordle {
                     logPrinter.println("Произошло исключение: EnglishLettersException/ DigitsException\n" + exception.getMessage());
                     System.out.println("Введенное слово должно состоять из кириллицы.");
                     System.out.println("Попытка не засчитана.");
+                } catch (IncorrectNumberOfCharacters exception) {
+                    logPrinter.println("Произошло исключение: IncorrectNumberOfCharacters\n" + exception.getMessage());
+                    System.out.println("Кол-во символов в слове != 5. Попытка не засчитана. Введите слово из 5 букв.");
                 }
             }
         }
