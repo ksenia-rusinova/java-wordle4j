@@ -9,8 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class WordleGame {
     private String answer = "";
     private int steps = 6;
-    private List<String> listOfAttempts = new ArrayList<>();
-
+    private final List<String> listOfAttempts = new ArrayList<>();
     private final LinkedHashMap<String, Integer> candidateWordCounts = new LinkedHashMap<>();
 
     public void getRandomWordFromList(WordleDictionaryLoader wordleDictionaryLoader, WordleDictionary wordleDictionary) throws IOException {
@@ -19,7 +18,6 @@ public class WordleGame {
         answer = wordleDictionary.getDictionaryList().get(indexOfChosenWord);
     }
 
-    /// метод для проверки введенного слова
     public String checkUserWordAgainstAnswer(WordleDictionary wordleDictionary, String userWord) throws WordNotFoundInDictionary {
         StringBuilder builder = new StringBuilder();
 

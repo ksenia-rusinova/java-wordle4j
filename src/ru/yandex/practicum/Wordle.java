@@ -17,7 +17,6 @@ public class Wordle {
         showMenu();
 
         try (LogPrinter logPrinter = new LogPrinter("program_log.txt")) {
-
             ///обработка исключения NumberFormatException (при вводе НЕ числа (кириллицы, латиницы итд))
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
