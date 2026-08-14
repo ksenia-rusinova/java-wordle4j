@@ -1,7 +1,7 @@
 package ru.yandex.practicum.wordle.exceptions;
 
-public class EnglishLettersException extends RuntimeException {
+public class EnglishLettersException extends Exception {
     public EnglishLettersException(String word) {
-        super("Слово: " + word + " состоит из латиницы. Должно было состоять только из кириллицы.");
+        super("Слово: " + word + " содержит латиницу. Должно было состоять только из кириллицы.");
     }
 }

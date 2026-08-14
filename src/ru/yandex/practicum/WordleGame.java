@@ -20,7 +20,7 @@ public class WordleGame {
     }
 
     /// метод для проверки введенного слова
-    public String checkUserWordAgainstAnswer(WordleDictionary wordleDictionary, String userWord) {
+    public String checkUserWordAgainstAnswer(WordleDictionary wordleDictionary, String userWord) throws WordNotFoundInDictionary {
         StringBuilder builder = new StringBuilder();
 
         if (!wordleDictionary.getDictionaryList().contains(userWord)) {
@@ -44,26 +44,6 @@ public class WordleGame {
             }
         }
         return builder.toString();
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
-
-    public int getSteps() {
-        return steps;
-    }
-
-    public void setSteps(int steps) {
-        this.steps = steps;
-    }
-
-    public List<String> getListOfAttempts() {
-        return listOfAttempts;
     }
 
     public void searchForRightWords(WordleDictionary wordleDictionary) {
@@ -116,6 +96,26 @@ public class WordleGame {
                 candidateWordCounts.put(word, candidateWordCounts.getOrDefault(word, 0) + 1);
             }
         }
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+
+    public void setSteps(int steps) {
+        this.steps = steps;
+    }
+
+    public List<String> getListOfAttempts() {
+        return listOfAttempts;
     }
 
     public LinkedHashMap<String, Integer> getCandidateWordCounts() {
