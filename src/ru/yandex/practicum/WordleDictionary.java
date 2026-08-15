@@ -1,14 +1,39 @@
 package ru.yandex.practicum;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-/*
-этот класс содержит в себе список слов List<String>
-    его методы похожи на методы списка, но учитывают особенности игры
-    также этот класс может содержать рутинные функции по сравнению слов, букв и т.д.
- */
 public class WordleDictionary {
 
-    private List<String> words;
+    private final List<String> dictionaryList = new ArrayList<>();
 
+    public void filterListByLength(WordleDictionaryLoader wordleDictionaryLoader, String fileName) throws IOException {
+        List<String> internalList = wordleDictionaryLoader.readWordsFromFile(fileName);
+
+        for (String word : internalList) {
+            if (word.length() == 5) {
+                dictionaryList.add(normalizeYoToEe(word).toLowerCase());
+            }
+        }
+    }
+
+    public String normalizeYoToEe(String word) {
+        if (word == null) return null;
+
+        StringBuilder sb = new StringBuilder(word);
+        for (int i = 0; i < sb.length(); i++) {
+            char c = sb.charAt(i);
+            if (c == 'ё') {
+                sb.setCharAt(i, 'е');
+            } else if (c == 'Ё') {
+                sb.setCharAt(i, 'Е');
+            }
+        }
+        return sb.toString();
+    }
+
+    public List<String> getDictionaryList() {
+        return dictionaryList;
+    }
 }
